@@ -21,3 +21,9 @@ To use vtcp:
 3. On the client side, connect to the subport:
 
     int fd = vtcp_connect (inet_addr ("127.0.0.1"), 5555, 10);
+
+Lincensing
+----------
+
+libvtcp is licensed under LGPLv3
+vtcpd is licensed under GPLv3

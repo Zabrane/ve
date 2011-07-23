@@ -25,7 +25,7 @@
 
 #include <arpa/inet.h>
 
-#include "vtcp.h"
+#include "../include/vtcp.h"
 
 int main (int argc, char *argv [])
 {

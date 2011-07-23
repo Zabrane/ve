@@ -1,0 +1,120 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+AC_PREREQ(2.61)
+#
+# Change the version number below after doing a public release.
+# The version in git should reflect the *next* version planned.
+# Version must be MAJOR.MINOR.PATCH otherwise things will break.
+#
+AC_INIT([vtcp],[1.0.0],[zeromq-dev@lists.zeromq.org])
+
+AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_MACRO_DIR(config)
+
+#
+# Libtool -version-info (ABI version)
+#
+# Currently 0.0.0 ("unstable"). Don't change this unless you
+# know exactly what you're doing and have read and understand
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+#
+# libvtcp -version-info
+LTVER="0:0:0"
+AC_SUBST(LTVER)
+
+# Capture c flags
+VTCP_ORIG_CFLAGS="${CFLAGS:-none}"
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_CC_C99
+AM_PROG_CC_C_O
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+AC_PROG_SED
+AC_PROG_AWK
+
+# Host specific checks
+AC_CANONICAL_HOST
+
+# Set some default features required by VTCP code.
+CPPFLAGS="-D_REENTRANT -D_THREAD_SAFE $CPPFLAGS"
+
+# OS-specific tests
+case "${host_os}" in
+    *linux*)
+        # Define on Linux to enable all library features
+        CPPFLAGS="-D_GNU_SOURCE -DLINUX $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_LINUX, 1, [Have Linux OS])
+        ;;
+    *solaris*)
+        # Define on Solaris to enable all library features
+        CPPFLAGS="-D_PTHREADS $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_SOLARIS, 1, [Have Solaris OS])
+        ;;
+    *freebsd*)
+        # Define on FreeBSD to enable all library features
+        CPPFLAGS="-D__BSD_VISIBLE $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_FREEBSD, 1, [Have FreeBSD OS])
+        ;;
+    *darwin*)
+        # Define on Darwin to enable all library features
+        CPPFLAGS="-D_DARWIN_C_SOURCE $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_OSX, 1, [Have DarwinOSX OS])
+        ;;
+    *netbsd*)
+        # Define on NetBSD to enable all library features
+        CPPFLAGS="-D_NETBSD_SOURCE $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_NETBSD, 1, [Have NetBSD OS])
+        ;;
+    *openbsd*)
+        # Define on OpenBSD to enable all library features
+        CPPFLAGS="-D_BSD_SOURCE $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_OPENBSD, 1, [Have OpenBSD OS])
+        ;;
+    *nto-qnx*)
+        AC_DEFINE(VTCP_HAVE_QNXNTO, 1, [Have QNX Neutrino OS])
+        ;;
+    *aix*)
+        AC_DEFINE(VTCP_HAVE_AIX, 1, [Have AIX OS])
+        ;;
+    *hpux*)
+        # Define on HP-UX to enable all library features
+        CPPFLAGS="-D_POSIX_C_SOURCE=200112L"
+        AC_DEFINE(VTCP_HAVE_HPUX, 1, [Have HPUX OS])
+        ;;
+    *mingw32*)
+        AC_DEFINE(VTCP_HAVE_WINDOWS, 1, [Have Windows OS])
+        AC_DEFINE(VTCP_HAVE_MINGW32, 1, [Have MinGW32])
+        AC_CHECK_HEADERS(windows.h)
+        ;;
+    *cygwin*)
+        # Define on Cygwin to enable all library features
+        CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
+        AC_DEFINE(VTCP_HAVE_CYGWIN, 1, [Have Cygwin])
+        ;;
+    *)
+        AC_MSG_ERROR([unsupported system: ${host_os}.])
+        ;;
+esac
+
+# Checks for header files.
+AC_HEADER_STDC
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_HEADER_TIME
+AC_TYPE_UINT32_T
+AC_C_VOLATILE
+
+# These options are GNU compiler specific.
+if test "x$GCC" = "xyes"; then
+    CPPFLAGS="-pedantic -Werror -Wall -Wno-unused ${CPPFLAGS}"
+fi
+
+AC_OUTPUT(Makefile libvtcp/Makefile libvtcp/libvtcp.pc)
+
