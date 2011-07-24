@@ -186,7 +186,8 @@ int main (int argc, char *argv [])
             cmsg->cmsg_level = SOL_SOCKET;
             cmsg->cmsg_type = SCM_RIGHTS;
             cmsg->cmsg_len = CMSG_LEN (sizeof (fd));
-            *(int*) CMSG_DATA (cmsg) = fd;
+            int *data = (int*) CMSG_DATA (cmsg);
+            *data = fd;
 
             //  Adjust the size of the control to match the data.
             msg.msg_controllen = cmsg->cmsg_len;

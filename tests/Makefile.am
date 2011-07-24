@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_builddir)/include
-LDADD = $(top_builddir)/src/libvtcp.la
+LDADD = $(top_builddir)/libvtcp/libvtcp.la
 
 noinst_PROGRAMS = bind connect
 

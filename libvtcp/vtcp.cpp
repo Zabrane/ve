@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include "vtcp.h"
+#include "../include/vtcp.h"
 
 int vtcp_connect (in_addr_t address, in_port_t port,
     vtcp_subport_t subport)
@@ -121,8 +121,10 @@ int vtcp_accept (int fd)
     //  Loop over control messages to find the embedded file descriptor.
     struct cmsghdr *cmsg = CMSG_FIRSTHDR (&msg);
     while (cmsg != NULL) {
-        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type  == SCM_RIGHTS)
-            return *(int*) CMSG_DATA (cmsg);
+        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type  == SCM_RIGHTS) {
+            int *data = (int*) CMSG_DATA (cmsg);
+            return *data;
+        }
         cmsg = CMSG_NXTHDR (&msg, cmsg);
     }
     assert (false);
