@@ -21,19 +21,26 @@
 #include <assert.h>
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 
 #include "../include/vtcp.h"
 
-int vtcp_connect (in_addr_t address, in_port_t port,
-    vtcp_subport_t subport)
+int vtcp_connect (in_addr_t address, in_port_t port)
 {
     //  Open the TCP socket.
     int s = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (s == -1)
         return -1;
+
+    //  Set the socket to non-blocking mode to achieve non-blocking connect.
+	int flags = fcntl (s, F_GETFL, 0);
+	if (flags == -1)
+        flags = 0;
+	int rc = fcntl (s, F_SETFL, flags | O_NONBLOCK);
+    assert (rc != -1);
 
     //  Connect to the peer.
     struct sockaddr_in addr;
@@ -41,22 +48,35 @@ int vtcp_connect (in_addr_t address, in_port_t port,
     addr.sin_family = AF_INET;
     addr.sin_port = htons (port);
     addr.sin_addr.s_addr = address;
-    int rc = connect (s, (struct sockaddr*) &addr, sizeof (addr));
+    rc = connect (s, (struct sockaddr*) &addr, sizeof (addr));
     if (rc != 0) {
         close (s);
         return -1;
     }
 
+    return s;
+}
+
+int vtcp_acceptc (int fd, vtcp_subport_t subport)
+{
+    //  Set the socket to blocking mode so that calling this function before
+    //  prior waiting for writeability blocks.
+	int flags = fcntl (fd, F_GETFL, 0);
+	if (flags == -1)
+        flags = 0;
+	int rc = fcntl (fd, F_SETFL, flags & ~O_NONBLOCK);
+    assert (rc != -1);
+
     //  Specify the subport.
     uint32_t subp = htonl (subport);
-    rc = send (s, &subp, sizeof (subp), 0);
+    rc = send (fd, &subp, sizeof (subp), 0);
     if (rc < 0) {
-        close (s);
+        close (fd);
         return -1;
     }
     assert (rc == sizeof (subp));
 
-    return s;
+    return 0;
 }
 
 int vtcp_bind (in_port_t port, vtcp_subport_t subport)
@@ -91,7 +111,7 @@ int vtcp_bind (in_port_t port, vtcp_subport_t subport)
     return s;
 }
 
-int vtcp_accept (int fd)
+int vtcp_acceptb (int fd)
 {
     //  Wait for new connection, i.e. read a message from vtcp daemon.
     unsigned char buf [1];

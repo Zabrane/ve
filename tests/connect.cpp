@@ -38,9 +38,15 @@ int main (int argc, char *argv [])
     int port = atoi (argv [2]);
     int subport = atoi (argv [3]);
 
-    int fd = vtcp_connect (addr, port, subport);
+    int fd = vtcp_connect (addr, port);
     if (fd < 0) {
         printf ("error in vtcp_connect: %s\n", strerror (errno));
+        exit (1);
+    }
+
+    int rc = vtcp_acceptc (fd, subport);
+    if (rc != 0) {
+        printf ("error in vtcp_acceptc: %s\n", strerror (errno));
         exit (1);
     }
 

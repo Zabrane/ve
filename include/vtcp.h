@@ -30,9 +30,25 @@ extern "C" {
 
 typedef uint32_t vtcp_subport_t;
 
-int vtcp_connect (in_addr_t address, in_port_t port, vtcp_subport_t subport);
+/*  To start connecting call vtcp_connect function. When the returned file    */
+/*  descriptor becomes writeable the connection has became established and    */
+/*  you can acceipt it using vtcp_acceptc function. Note that vtcp_acceptc    */
+/*  doesn't produce new file descriptor, you are meant to use the one         */
+/*  returned by vtcp connect function to pass data. If vtcp_acceptc is called */
+/*  without waiting for the file descriptor to become writeable the function  */
+/*  blocks until the connection is established.                               */
+int vtcp_connect (in_addr_t address, in_port_t port);
+int vtcp_acceptc (int fd, vtcp_subport_t subport);
+
+/*  To start listening on a specific subport use vtcp_bind function. When     */
+/*  the returned file descriptor becomes readable you can get the file        */
+/*  descriptor for the new connection using vtcp_acceptb function. This can   */
+/*  be done arbitrary number of times. If vtcp_acceptb is called without      */
+/*  waiting for the file descriptor to become readable the function blocks    */
+/*  until there's a new incoming connection.                                  */
+/*  Note that vtcp_bind always binds to all the available network interfaces. */
 int vtcp_bind (in_port_t port, vtcp_subport_t subport);
-int vtcp_accept (int fd);
+int vtcp_acceptb (int fd);
 
 #ifdef __cplusplus
 }

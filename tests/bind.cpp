@@ -41,9 +41,9 @@ int main (int argc, char *argv [])
         exit (1);
     }
 
-    int fd = vtcp_accept (listener);
+    int fd = vtcp_acceptb (listener);
     if (fd < 0) {
-        printf ("error in vtcp_accept: %s\n", strerror (errno));
+        printf ("error in vtcp_acceptb: %s\n", strerror (errno));
         exit (1);
     }
 
