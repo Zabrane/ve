@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_builddir)/include
 
-noinst_PROGRAMS = vtcpd
+bin_PROGRAMS = vtcpd
 
 vtcpd_SOURCES = vtcpd.cpp
-
+vtcpd_CXXFLAGS = -Wall -pedantic -Werror
