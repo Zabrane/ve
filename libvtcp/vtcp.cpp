@@ -49,7 +49,7 @@ int vtcp_connect (in_addr_t address, in_port_t port)
     addr.sin_port = htons (port);
     addr.sin_addr.s_addr = address;
     rc = connect (s, (struct sockaddr*) &addr, sizeof (addr));
-    if (rc != 0) {
+    if (rc != 0 && errno != EINPROGRESS) {
         close (s);
         return -1;
     }
