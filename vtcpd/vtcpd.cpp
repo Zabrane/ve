@@ -37,12 +37,16 @@
 
 int main (int argc, char *argv [])
 {
-    //  Parse the command line arguments.
-    if (argc != 2) {
-        printf ("usage: vtcpd <port>\n");
+    //  Determine the port number to mutliplex.
+    int port;
+    if (argc == 1)
+        port = 9220;
+    else if (argc == 2)
+        port = atoi (argv [1]);
+    else {
+        printf ("usage: vtcpd [port]\n");
         return 1;
     }
-    int port = atoi (argv [1]);
 
     //  Start listening on the TCP port.
     int tcplistener = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
